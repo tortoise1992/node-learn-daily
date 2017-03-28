@@ -4,21 +4,45 @@
 var express=require('express');
 var superagent=require('superagent');
 var cheerio=require('cheerio');
+var url=require('url');
 var app=express();
-
+var eventproxy=require('eventproxy');
+var ep=new eventproxy();
+var cnodeUrl='https://cnodejs.org/';
 app.get('/',function (req,res,next) {
-    superagent.get('https://cnodejs.org/').end(function (err,sres) {
+    superagent.get(cnodeUrl).end(function (err,sres) {
         if(err) return next(err);
         var $=cheerio.load(sres.text);
-        var items=[];
-        $('#topic_list .cell').each(function (index,ele) {
+        var topicUrls=[];
+        $('#topic_list .topic_title').each(function (index,ele) {
             var $ele=$(ele);
-            items.push({
-                title:$ele.find('.topic_title').text(),
-                author:$ele.find('.put_top').text()
-            })
+            var href = url.resolve(cnodeUrl, $ele.attr('href'));
+            topicUrls.push(href);
         })
-        res.send(items);
+        console.log(topicUrls);
+        ep.after('topic',topicUrls.length,function (topics) {
+            topics=topics.map(function (pair) {
+                var topicUrl = pair[0];
+                var topicHtml = pair[1];
+                var $ = cheerio.load(topicHtml);
+                return ({
+                    title: $('.topic_full_title').text().trim(),
+                    href: topicUrl,
+                    comment1: $('.reply_content').eq(0).text().trim(),
+                });
+            })
+            console.log('final:');
+            console.log(topics);
+            res.send(topics);
+        })
+
+        topicUrls.forEach(function (topicUrl) {
+            superagent.get(topicUrl)
+            .end(function (err, res) {
+                console.log('fetch ' + topicUrl + ' successful');
+                ep.emit('topic', [topicUrl, res.text]);
+            });
+        });
     })
 });
 
