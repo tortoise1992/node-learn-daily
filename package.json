@@ -1,0 +1,23 @@
+{
+  "name": "node-learn-daily",
+  "version": "1.0.0",
+  "description": "node.js学习记录",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tortoise1992/node-learn-daily.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tortoise1992/node-learn-daily/issues"
+  },
+  "homepage": "https://github.com/tortoise1992/node-learn-daily#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2"
+  }
+}
