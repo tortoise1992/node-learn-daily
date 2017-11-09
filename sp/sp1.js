@@ -7,7 +7,7 @@ var fs=require('fs')
 var path=require('path')
 function downLoad(url,cb) {
     http.get(url,function (res) {
-        res.setEncoding('binary')
+        // res.setEncoding('binary')
         var data="";
         res.on('data',function (chunk) {
             data +=chunk
@@ -37,9 +37,27 @@ downLoad(baseUrl,function (data) {
     if(data){
         var $=cheerio.load(data)
         $('.box-series .yk-col4').each(function () {
-            var url=$(this).find('.quic').attr('_src')
+            var url=$(this).find('a').attr('href')
+            var title=$(this).find('a').attr('title')
             // console.log(url)
-            savePic(url)
+            // savePic(url)
+            url="http:"+url;
+            downLoad(url,function (data2) {
+                if(data2){
+                    console.log('-------------正在下载'+title+'详情页的内容-----------------')
+                    var $=cheerio.load(data2)
+                    // console.log($)
+                    $('div[name="tvlist"]').each(function () {
+                        var link=$(this).find('.sn').attr('href');
+                        console.log(link)
+                    })
+                    var size=$('div[name="tvlist"]').length
+                    console.log('-------------'+title+'详情页的内容下载完毕，共'+size+'个数据-----------------')
+                }
+            })
+
+            // console.log(url)
+            // console.log(title)
         })
 
         console.log('done')
